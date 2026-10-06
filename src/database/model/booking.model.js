@@ -10,7 +10,13 @@ const bookingSchema = new Schema({
         type: String,
     },
     bookingDate: {
-        type: String,
+        type: Date,
+        validate: {
+            validator: function(value) {
+                return value >= new Date();
+            },
+            message: "Booking date cannot be in the past" 
+        }
     },
     status:{
         type: String,

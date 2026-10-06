@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBooking, deleteBooking, getAllBookings, getBookingByID, updateBooking } from "./booking.service.js";
+import { cancelBooking, createBooking, getAllBookings, getBookingByID, updateBooking } from "./booking.service.js";
 import { auth } from './../../common/middleware/auth.middleware.js';
 
 const router = Router()
@@ -24,7 +24,7 @@ router.put("/:bookingId",auth, async(req, res)=>{
 })
 
 router.delete("/:bookingId",auth, async(req, res)=>{
-    let data = await deleteBooking(req.user.id, req.params)
+    let data = await cancelBooking(req.user.id, req.params)
     res.json(data)
 })
 

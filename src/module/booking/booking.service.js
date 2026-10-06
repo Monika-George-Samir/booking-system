@@ -1,4 +1,4 @@
-import { NotFoundException, UnAuthorizedException } from "../../common/index.js"
+import { NotFoundException, StatusEnum, UnAuthorizedException } from "../../common/index.js"
 import { bookingModel } from "../../database/model/booking.model.js"
 import { userModel } from "../../database/model/user.model.js"
 
@@ -46,18 +46,32 @@ export const updateBooking = async(id, params, body)=>{
     let {title, bookingDate, status} = body
     let authorizedUser = await userModel.findById(id)
     if (authorizedUser) {
-        let bookingData = await bookingModel.updateOne({title, bookingDate, status})
+        let bookingData = await bookingModel.findByIdAndUpdate({_id: bookingId, userId: id},{title, bookingDate, status}, {new:true})
+        console.log(bookingData);
+        if (!bookingData) {
+            return NotFoundException({ message: "Booking not found" });
+        }
         return {message: "booking updated", bookingData: bookingData}
     }else{
         return UnAuthorizedException({message: "unauthorized"})
     } 
 }
-export const deleteBooking = async(id, params, body)=>{
+
+
+
+export const cancelBooking = async(id, params)=>{
     let {bookingId} = params
     let authorizedUser = await userModel.findById(id)
     if (authorizedUser) {
-        let bookingData = await bookingModel.deleteOne(bookingId)
-        return {message: "booking deleting", bookingData: bookingData}
+        let cancelBookingData = await bookingModel.findByIdAndUpdate(
+            { _id: bookingId, userId:id },
+            {status : StatusEnum.Cancelled},
+            {new: true}
+        )
+        if (!cancelBookingData) {
+            return NotFoundException({message: "booking not found"})
+        }
+        return {message: "booking cancelled", bookingData: cancelBookingData}
     }else{
         return UnAuthorizedException({message: "unauthorized"})
     } 
